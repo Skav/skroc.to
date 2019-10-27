@@ -19,7 +19,7 @@ class Links
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $orginal_link;
+    private $original_link;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -31,14 +31,14 @@ class Links
         return $this->idLinks;
     }
 
-    public function getOrginalLink(): ?string
+    public function getOriginalLink(): ?string
     {
-        return $this->orginal_link;
+        return $this->original_link;
     }
 
-    public function setOrginalLink(string $orginal_link): self
+    public function setOriginalLink(string $original_link): self
     {
-        $this->orginal_link = $orginal_link;
+        $this->original_link = $original_link;
 
         return $this;
     }
