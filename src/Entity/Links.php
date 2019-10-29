@@ -26,6 +26,11 @@ class Links
      */
     private $short_link;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $slug;
+
     public function getIdLinks(): ?int
     {
         return $this->idLinks;
@@ -54,4 +59,17 @@ class Links
 
         return $this;
     }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): self
+    {
+        $this->slug = $slug;
+
+        return $this;
+    }
+
 }
