@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Links;
+use Fig\Link\Link;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as API;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
@@ -19,25 +20,34 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class LinksController extends AbstractFOSRestController
 {
+    /**TODO
+     * Add Delete and update methods
+     * Add Authorization
+     * Add unit test
+     * Add exceptions for empty request
+     */
+
+
     /**
      * @API\Get("/links")
      * @return Response
      */
-    public function getListOfLinks()
+    public function getListOfLinks(LinkBundle $linkBundle)
     {
-        $manager = $this->getDoctrine()->getRepository(Links::class);
-
-        $data = $manager->findAll();
-
+        try {
+            $data = $linkBundle->getListOfLinks();
+        }
+        catch(\Exception $e){
+            return $this->createErrorResponse($e->getMessage());
+        }
         $view = $this->view($data, 200);
-
         return $this->handleView($view);
     }
 
     /**
      * @API\Post("/links")
      * @return Response
-     * @throws \Exception
+     * @throws \Exception, AccessDeniedException
      */
     public function addNewShort(Request $request, LinkBundle $linkBundle)
     {
@@ -66,40 +76,24 @@ class LinksController extends AbstractFOSRestController
         return $this->handleView($view);
     }
 
-   /* public function addNewShort(Request $request)
+    /**
+     * @API\Get("/links/{slug}")
+     * @return Response
+     * @throws \Exception
+     * @param $slug
+     */
+    public function getElementBySlug($slug, LinkBundle $linkBundle)
     {
-        $originalLink = $request->query->get('original_link');
-
-        if(empty($originalLink))
-            return $this->createErrorResponse('Link cannot be empty!', 400);
-
-        try
-        {
-            for($i = 0; $i<10; $i++)
-            {
-                $short = $this->generateRandomString();
-                if(!$this->checkIsShortLinkExist($short))
-                    break;
-            }
-
-            if($i == 10)
-                throw new \Exception('Infinite loop: cannot find free link');
-
-            $link = new Links();
-            $link->setOriginalLink($originalLink);
-            $link->setShortLink('www.skroc.to/'.$short);
-
-            $manager = $this->getDoctrine()->getManager();
-            $manager->persist($link);
-            $manager->flush();
+        try{
+            $data = $linkBundle->getElementBySlug($slug);
         }
         catch(\Exception $e){
-            return $this->createErrorResponse($e->getMessage());
+            $this->createErrorResponse($e->getMessage());
         }
 
-        $view = $this->view($link, 201);
+        $view = $this->view($data);
         return $this->handleView($view);
-    }*/
+    }
 
     /**
      * @param $message

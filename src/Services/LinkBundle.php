@@ -9,6 +9,13 @@ use Symfony\Component\Finder\Exception\AccessDeniedException;
 
 class LinkBundle
 {
+    /**TODO
+     * Add caching
+     * Add unit tests
+     * Replace Exceptions to HttpExceptions methods or write own exceptions (e.g 508 in generating slug)
+     * Check is link empty
+    **/
+
     protected $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
@@ -16,29 +23,48 @@ class LinkBundle
         $this->entityManager = $entityManager;
     }
 
-    public function checkIsLinkInDataBase($original_link): bool
+    /**
+     * @return array
+     * @throws \Exception
+     */
+    public function getListOfLinks(): array
     {
-        $isDot = $this->checkLinkHaveDot($original_link);
+        try {
+            $data = (array) $this->entityManager->getRepository(Links::class)->findAll();
+        }
+        catch(\Exception $e) {
+            throw $e;
+        }
+        return $data;
+    }
 
-        if(!$isDot)
-            throw new AccessDeniedException('Invalid link');
-
-
-        $repo = $this->entityManager->getRepository(Links::class);
-
-        return ($repo->findOneBy(['original_link' => $original_link]) == null)? false : true;
+    /**
+     * @param $slug
+     * @return array
+     * @throws \Exception
+     */
+    public function getElementBySlug($slug): array
+    {
+        try {
+            $repo = $this->entityManager->getRepository(Links::class);
+            $data[] = $repo->findOneBy(['slug' => $slug]);
+        }
+        catch(\Exception $e){
+            throw $e;
+        }
+        return $data;
     }
 
     /**
      * @param $original_link
-     * @return object|null
+     * @return array
      * @throws \Exception
      */
-    public function getExistedShortLink($original_link): object
+    public function getExistedShortLink($original_link): array
     {
         try{
             $repo = $this->entityManager->getRepository(Links::class);
-            $data = $repo->findOneBy(['original_link' => $original_link]);
+            $data = (array) $repo->findOneBy(['original_link' => $original_link]);
         }
         catch(\Exception $e){
             throw $e;
@@ -47,6 +73,10 @@ class LinkBundle
         return $data;
     }
 
+    /**
+     * @return string
+     * @throws \Exception
+     */
     public function getUniqueSlug(): string
     {
         try {
@@ -61,17 +91,34 @@ class LinkBundle
         }
 
         if($i >= 10)
-            throw new \Exception('Infinute loop: Cannot find free slug');
+            throw new \Exception('Infinite loop: Cannot find free slug');
 
         return $slug;
     }
 
     /**
-     * @param int $length
+     * @param $original_link
+     * @return bool
+     */
+    public function checkIsLinkInDataBase($original_link): bool
+    {
+        $isDot = $this->checkLinkHaveDot($original_link);
+
+        if(!$isDot)
+            throw new AccessDeniedException('Invalid link');
+
+
+        $repo = $this->entityManager->getRepository(Links::class);
+
+        return ($repo->findOneBy(['original_link' => $original_link]) == null)? false : true;
+    }
+
+    /**
+     * @param $slug
+     * @param string $link
      * @return string
      * @throws \Exception
      */
-
     public function createNewLink($slug, $link='www.skroc.to/'): string
     {
         if(empty($slug) || empty($link))
@@ -80,6 +127,13 @@ class LinkBundle
         return $link.$slug;
     }
 
+    /**
+     * @param $original_link
+     * @param $short_link
+     * @param $slug
+     * @return object
+     * @throws \Exception
+     */
     public function addLinkToDatabase($original_link, $short_link, $slug): object
     {
         try {
@@ -104,10 +158,15 @@ class LinkBundle
             $link->getIdLinks(),
             $link->getOriginalLink(),
             $link->getShortLink(),
-            $link->getSlug(),
+            $link->getSlug()
         );
     }
 
+    /**
+     * @param array $data
+     * @return bool
+     * @throws \Exception
+     */
     protected function validation($data = array()): bool
     {
         $wrongData = null;
@@ -123,11 +182,20 @@ class LinkBundle
         return true;
     }
 
+    /**
+     * @param $original_link
+     * @return bool
+     */
     protected function checkLinkHaveDot($original_link): bool
     {
         return (!strpos($original_link, '.'))? false : true;
     }
 
+    /**
+     * @param int $length
+     * @return string
+     * @throws \Exception
+     */
     protected function generateRandomSlug($length = 5): string
     {
         if($length <= 0)
