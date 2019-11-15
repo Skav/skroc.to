@@ -1,0 +1,8 @@
+[
+  {
+    "id_links": "@integer@",
+    "original_link": "www.wp.pl",
+    "short_link": "@string@",
+    "slug": "@string@"
+  }
+]

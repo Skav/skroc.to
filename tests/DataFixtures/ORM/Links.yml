@@ -1,0 +1,6 @@
+ApiTestCase\Test\Entity\Links:
+  link1:
+    id_links: "1"
+    original_link: "www.wp.pl"
+    short_link: "www.skroc.to/zIv5Cb"
+    slug: "zIv5Cb"

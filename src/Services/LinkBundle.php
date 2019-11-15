@@ -5,6 +5,7 @@ namespace App\Services;
 use App\DTO\LinksDTO;
 use App\Entity\Links;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\Types\Object_;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 
 class LinkBundle
@@ -40,37 +41,47 @@ class LinkBundle
 
     /**
      * @param $slug
-     * @return array
+     * @return object
      * @throws \Exception
      */
-    public function getElementBySlug($slug): array
+    public function getElementBySlug($slug): object
     {
         try {
             $repo = $this->entityManager->getRepository(Links::class);
-            $data[] = $repo->findOneBy(['slug' => $slug]);
+            $data = $repo->findOneBy(['slug' => $slug]);
         }
         catch(\Exception $e){
             throw $e;
         }
-        return $data;
+        return new LinksDTO(
+            $data->getIdLinks(),
+            $data->getOriginalLink(),
+            $data->getShortLink(),
+            $data->getSlug()
+        );
     }
 
     /**
      * @param $original_link
-     * @return array
+     * @return object
      * @throws \Exception
      */
-    public function getExistedShortLink($original_link): array
+    public function getExistedShortLink($original_link): object
     {
-        try{
-            $repo = $this->entityManager->getRepository(Links::class);
-            $data = (array) $repo->findOneBy(['original_link' => $original_link]);
-        }
+        try {
+        $repo = $this->entityManager->getRepository(Links::class);
+        $data = $repo->findOneBy(['original_link' => $original_link]);
+    }
         catch(\Exception $e){
-            throw $e;
-        }
+        throw $e;
+    }
 
-        return $data;
+        return new LinksDTO(
+            $data->getIdLinks(),
+            $data->getOriginalLink(),
+            $data->getShortLink(),
+            $data->getSlug()
+        );
     }
 
     /**

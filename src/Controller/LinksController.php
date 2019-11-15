@@ -52,12 +52,11 @@ class LinksController extends AbstractFOSRestController
     public function addNewShort(Request $request, LinkBundle $linkBundle)
     {
         try {
-            $link = $request->query->get('original_link');
-
+            $link = $request->request->get('original_link');
             $isLink = $linkBundle->checkIsLinkInDataBase($link);
 
             if($isLink)
-                return $this->handleView($this->view($linkBundle->getExistedShortLink($link)));
+                return $this->handleView($this->view($linkBundle->getExistedShortLink($link), Response::HTTP_ALREADY_REPORTED));
 
             $slug = $linkBundle->getUniqueSlug();
             $short_link = $linkBundle->createNewLink($slug);
@@ -72,7 +71,7 @@ class LinksController extends AbstractFOSRestController
         }
 
 
-        $view = $this->view($data);
+        $view = $this->view($data, Response::HTTP_CREATED);
         return $this->handleView($view);
     }
 

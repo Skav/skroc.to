@@ -11,13 +11,15 @@ class LinksDTO
     private $short_link;
     private $slug;
 
-    public function __construct($id, $original_link, $short_link, $slug)
+    public function __construct($id_links, $original_link, $short_link, $slug)
     {
-        $this->id_links = $id;
+        $this->id_links = $id_links;
         $this->original_link = $original_link;
         $this->short_link = $short_link;
         $this->slug = $slug;
     }
+
+
 
     /**
      * @return mixed
