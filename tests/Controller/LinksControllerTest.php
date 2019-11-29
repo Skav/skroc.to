@@ -3,15 +3,26 @@
 namespace App\Tests;
 
 use ApiTestCase\JsonApiTestCase;
+use App\DataFixtures\LinksFixtures;
 use Symfony\Component\HttpFoundation\Response;
-use App\Controller\LinksController;
 
 class LinksControllerTest extends JsonApiTestCase
 {
 
+    public function setUp(): void
+    {
+        $client = static::createClient();
+        $container = $client->getContainer();
+        $doctrine = $container->get('doctrine');
+        $entityManager = $doctrine->getManager();
+
+        $fixture = new LinksFixtures();
+        $fixture->load($entityManager);
+    }
+
     public function testAddNewShort()
     {
-        $data = ['original_link' => "www.wp.pl"];
+        $data = ['original_link' => "www.google.pl"];
 
         $this->client->request('POST', 'api/links', $data);
 
@@ -28,13 +39,12 @@ class LinksControllerTest extends JsonApiTestCase
 
         $request = $this->client->getResponse();
 
-        $this->assertResponse($request, 'create_link', Response::HTTP_ALREADY_REPORTED);
+        $this->assertResponse($request, 'create_link_error', Response::HTTP_ALREADY_REPORTED);
     }
 
     public function testGetElementBySlug()
     {
-        //$object = $this->loadFixturesFromDirectory();
-        $this->client->request('GET', 'api/links', ['slug' => 'zIv5Cb']);
+        $this->client->request('GET', 'api/links/FFgh4');
 
         $response = $this->client->getResponse();
 

@@ -31,12 +31,20 @@ class LinkBundle
     public function getListOfLinks(): array
     {
         try {
-            $data = (array) $this->entityManager->getRepository(Links::class)->findAll();
+            //$data = $this->entityManager->getRepository(Links::class)->findAll();
+
+            $connection = $this->entityManager->getConnection();
+
+            $sql = 'SELECT * FROM links';
+
+            $stmt = $connection->prepare($sql);
+            $stmt->execute();
         }
         catch(\Exception $e) {
             throw $e;
         }
-        return $data;
+
+        return $stmt->fetchAll();
     }
 
     /**
@@ -53,6 +61,7 @@ class LinkBundle
         catch(\Exception $e){
             throw $e;
         }
+
         return new LinksDTO(
             $data->getIdLinks(),
             $data->getOriginalLink(),
@@ -88,12 +97,12 @@ class LinkBundle
      * @return string
      * @throws \Exception
      */
-    public function getUniqueSlug(): string
+    public function getUniqueSlug($lenght = 5): string
     {
         try {
             $i = 0;
             do {
-                $slug = $this->generateRandomSlug();
+                $slug = $this->generateRandomSlug($lenght);
                 $i++;
             } while ($this->checkIsSlugExist($slug));
         }
@@ -215,7 +224,7 @@ class LinkBundle
         $chars = "qQwWeErRtTyYuUiIoOpPaAsSdDfFgGhHjJkKlLzZxXcCvVbBnNmM1234567890";
         $charsLength = strlen($chars)-1;
         $random = null;
-        for($i = 0; $i<=$length; $i++)
+        for($i = 1; $i<=$length; $i++)
         {
             $index = rand(0, $charsLength);
             $random = $random.$chars[$index];

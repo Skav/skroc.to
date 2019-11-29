@@ -19,8 +19,8 @@
 ###< symfony/web-server-bundle ###
 
 .idea/
+.env
 
 ###> phpunit/phpunit ###
 /phpunit.xml
 .phpunit.result.cache
-###< phpunit/phpunit ###
