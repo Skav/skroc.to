@@ -1,0 +1,6 @@
+{
+  "id_links": "@integer@",
+  "original_link": "www.google.pl",
+  "short_link": "@string@",
+  "slug": "@string@"
+}
